@@ -33,7 +33,8 @@ MAX_FILE_MB = 15          # per PDF
 MAX_QUESTIONS = 1500      # keeps memory low on the free Render plan
 TOP_N = 12                # questions in the final list
 SIMILARITY_CUTOFF = 0.65  # cosine distance; lower = stricter grouping
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+# Groq retired llama-3.3-70b-versatile on 16 Aug 2026. Set GROQ_MODEL to change this.
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 # Words that start many exam questions but say nothing about the topic.
 EXAM_WORDS = {
     "explain", "define", "write", "describe", "discuss", "compare", "differentiate",
@@ -226,7 +227,7 @@ def home():
     return FileResponse(BASE_DIR / "static" / "index.html")
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])  # uptime monitors send HEAD
 def health():
     return {"ok": True}
 
@@ -389,3 +390,4 @@ def make_pdf(body: PdfRequest):
         media_type="application/pdf",
         headers={"Content-Disposition": 'attachment; filename="cuboid-predicted-questions.pdf"'},
     )
+
