@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+pymupdf
+scikit-learn>=1.4
+numpy
+fpdf2
+groq
+python-dotenv

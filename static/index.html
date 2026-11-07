@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cuboid</title>
+<style>
+:root{--bg:#f1f5f9;--surface:#ffffff;--text:#0f1b2d;--muted:#5b6b7f;--border:#e2e8f0;--accent:#0d9488;--accent-ink:#ffffff;--accent-soft:#ccfbf1;--navy:#0f1b2d;--navy-ink:#ffffff;--warn:#b45309;--warn-bg:#fef3c7;--err:#be123c;--err-bg:#ffe4e6;--chip:#eef2f7;color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0b1220;--surface:#131d30;--text:#e8eef7;--muted:#98a6bb;--border:#233049;--accent:#2dd4bf;--accent-ink:#06201c;--accent-soft:#0f3b38;--navy:#1b2d47;--navy-ink:#ffffff;--warn:#fcd34d;--warn-bg:#3a2a08;--err:#fda4af;--err-bg:#3b1020;--chip:#1a2740;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1220;--surface:#131d30;--text:#e8eef7;--muted:#98a6bb;--border:#233049;--accent:#2dd4bf;--accent-ink:#06201c;--accent-soft:#0f3b38;--navy:#1b2d47;--navy-ink:#ffffff;--warn:#fcd34d;--warn-bg:#3a2a08;--err:#fda4af;--err-bg:#3b1020;--chip:#1a2740;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:20px}
+.logo i{width:38px;height:38px;border-radius:10px;background:var(--accent);display:grid;place-items:center}
+.tag{font-size:12px;background:var(--accent-soft);color:var(--text);padding:4px 10px;border-radius:99px;border:1px solid var(--border)}
+.steps{display:flex;gap:8px;margin-bottom:18px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.steps span{padding:6px 12px;border-radius:99px;background:var(--chip)}
+.steps span.on{background:var(--navy);color:var(--navy-ink);font-weight:600}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px}
+h1{font-size:26px;margin:0 0 6px}h2{font-size:18px;margin:0 0 12px}
+p.sub{margin:0 0 18px;color:var(--muted)}
+.drop{border:2px dashed var(--border);border-radius:14px;padding:34px 16px;text-align:center;cursor:pointer;background:var(--bg);transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.drop b{display:block;font-size:17px;margin:8px 0 2px}.drop small{color:var(--muted)}
+.files{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+.file{display:flex;align-items:center;gap:8px;background:var(--chip);border-radius:10px;padding:4px 4px 4px 10px;font-size:13px;max-width:100%}
+.file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.file em{font-style:normal;color:var(--muted);flex:none}
+.file button{padding:2px 9px;background:transparent;color:var(--muted);font-size:18px;line-height:1.2}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;align-items:center}
+button{font:inherit;border:0;border-radius:10px;padding:11px 18px;cursor:pointer;font-weight:600}
+.primary{background:var(--accent);color:var(--accent-ink)}.primary:disabled{opacity:.45;cursor:not-allowed}
+.ghost{background:var(--chip);color:var(--text)}
+input[type=text]{font:inherit;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text);min-width:0;flex:1 1 220px}
+.note{font-size:12px;color:var(--muted);margin-top:14px}
+.msg{border-radius:10px;padding:10px 14px;font-size:14px;margin-bottom:12px}
+.err{background:var(--err-bg);color:var(--err)}
+.warnbox{background:var(--warn-bg);color:var(--warn)}
+.hide{display:none}
+.prog{list-style:none;padding:0;margin:8px 0 0}
+.prog li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);color:var(--muted)}
+.prog li:last-child{border:0}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;font-size:12px;flex:none}
+.prog li.run{color:var(--text)}.prog li.run .dot{border-color:var(--accent);border-top-color:transparent;animation:sp .8s linear infinite}
+.prog li.done{color:var(--text)}.prog li.done .dot{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.prog li.run .dot{animation:none}.bar i,.topic i{transition:none}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.stat{background:var(--navy);color:var(--navy-ink);border-radius:14px;padding:14px 16px}
+.stat b{display:block;font-size:26px}.stat span{font-size:13px;opacity:.85}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.grid>*{min-width:0}
+.q{padding:14px 0;border-bottom:1px solid var(--border)}.q:last-child{border:0}
+.qh{display:flex;gap:12px;align-items:flex-start}
+.rank{width:28px;height:28px;border-radius:8px;background:var(--navy);color:var(--navy-ink);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.qt{font-weight:600;min-width:0;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0 40px;font-size:12px}
+.meta span{background:var(--chip);padding:3px 9px;border-radius:99px}
+.bar{margin:10px 0 0 40px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.bar div{flex:1;height:8px;background:var(--chip);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .9s ease}
+.bar b{color:var(--text);min-width:36px;text-align:right}
+.topic{margin-bottom:12px;font-size:14px}
+.topic div{height:8px;background:var(--chip);border-radius:99px;margin-top:5px;overflow:hidden}
+.topic i{display:block;height:100%;width:0;background:var(--navy);border-radius:99px;transition:width .9s ease}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--navy);color:var(--navy-ink);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr}.stat b{font-size:20px}h1{font-size:22px}.meta,.bar{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><i><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></i>Cuboid</div>
+    <span class="tag">Exam question predictor</span>
+  </header>
+  <div class="steps" id="steps"><span class="on">1 Upload</span><span>2 Analyse</span><span>3 Results</span></div>
+
+  <section class="card" id="upload">
+    <h1>Predict your next exam paper</h1>
+    <p class="sub">Upload previous year question papers (PDF or photo) and get the most probable questions, ranked.</p>
+    <div id="err" class="msg err hide" role="alert"></div>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose papers to upload">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--accent)" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+      <b>Drop papers here or click to browse</b>
+      <small>PDF, JPG or PNG &middot; up to 10 files</small>
+      <input type="file" id="file" accept=".pdf,image/*" multiple hidden>
+    </div>
+    <div class="files" id="files"></div>
+    <div class="row">
+      <input type="text" id="subject" placeholder="Subject (optional), e.g. Data Structures" aria-label="Subject">
+      <button class="primary" id="go" disabled>Predict questions</button>
+    </div>
+    <p class="note">Tip: put the year in each file name, for example DS_2023.pdf. Text PDFs and photos work. A scanned PDF (text cannot be selected) is not supported yet, so upload photos of its pages instead.</p>
+  </section>
+
+  <section class="card hide" id="loading">
+    <h2>Analysing your papers&hellip;</h2>
+    <ul class="prog" id="prog">
+      <li><span class="dot"></span>Reading text from photos (in your browser)</li>
+      <li><span class="dot"></span>Finding, grouping and ranking questions on the server</li>
+      <li><span class="dot"></span>Preparing your list</li>
+    </ul>
+    <p class="note" id="ocrnote">Photos can take up to a minute each on a slow computer.</p>
+  </section>
+
+  <section class="hide" id="results">
+    <div id="notes"></div>
+    <div class="stats">
+      <div class="stat"><b id="s1">0</b><span>Papers analysed</span></div>
+      <div class="stat"><b id="s2">0</b><span>Questions found</span></div>
+      <div class="stat"><b id="s3">0</b><span>Topics detected</span></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <h2 id="rtitle">Top predicted questions</h2>
+        <div id="qs"></div>
+        <div class="row">
+          <button class="primary" id="pdf">Download PDF</button>
+          <button class="ghost" id="copy">Copy as text</button>
+          <button class="ghost" id="reset">Start over</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Topic frequency</h2>
+        <div id="topics"></div>
+        <p class="note">Share of the predicted questions by topic.</p>
+      </div>
+    </div>
+  </section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script>
+var files = [];
+var last = null;
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function isPdf(f){return /\.pdf$/i.test(f.name)||f.type==="application/pdf"}
+function isImage(f){return /^image\//.test(f.type)||/\.(jpe?g|png)$/i.test(f.name)}
+function size(b){return b>1048576?(b/1048576).toFixed(1)+" MB":Math.max(1,Math.round(b/1024))+" KB"}
+function toast(t){var el=$("toast");el.textContent=t;el.classList.add("show");setTimeout(function(){el.classList.remove("show")},2000)}
+function showErr(t){var e=$("err");e.textContent=t;e.classList.remove("hide")}
+function hideErr(){$("err").classList.add("hide")}
+
+function show(id){
+  ["upload","loading","results"].forEach(function(x){$(x).classList.toggle("hide",x!==id)});
+  var n={upload:0,loading:1,results:2}[id];
+  Array.prototype.forEach.call($("steps").children,function(el,i){el.classList.toggle("on",i===n)});
+  window.scrollTo(0,0);
+}
+function setStep(n){
+  Array.prototype.forEach.call($("prog").children,function(li,i){li.className=i<n?"done":(i===n?"run":"")});
+}
+
+function renderFiles(){
+  $("files").innerHTML=files.map(function(f,i){
+    return '<div class="file"><span>'+esc(f.name)+'</span><em>'+size(f.size)+'</em><button type="button" data-i="'+i+'" aria-label="Remove '+esc(f.name)+'">&times;</button></div>'}).join("");
+  $("go").disabled=files.length===0;
+}
+function addFiles(list){
+  hideErr();
+  Array.prototype.forEach.call(list,function(f){
+    if(!isPdf(f)&&!isImage(f)){showErr("Only PDF, JPG and PNG files are supported.");return}
+    if(files.length>=10){showErr("You can add up to 10 files.");return}
+    files.push(f);
+  });
+  renderFiles();
+}
+$("files").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-i]");
+  if(b){files.splice(+b.getAttribute("data-i"),1);renderFiles()}
+});
+$("drop").addEventListener("click",function(){$("file").click()});
+$("drop").addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();$("file").click()}});
+$("file").addEventListener("change",function(e){addFiles(e.target.files);e.target.value=""});
+["dragover","dragenter"].forEach(function(ev){$("drop").addEventListener(ev,function(e){e.preventDefault();$("drop").classList.add("over")})});
+["dragleave","drop"].forEach(function(ev){$("drop").addEventListener(ev,function(e){e.preventDefault();$("drop").classList.remove("over")})});
+$("drop").addEventListener("drop",function(e){if(e.dataTransfer)addFiles(e.dataTransfer.files)});
+
+async function readPhotos(images){
+  var out=[];
+  if(!window.Tesseract) throw new Error("The photo reader could not load. Check your internet connection and try again.");
+  for(var i=0;i<images.length;i++){
+    var label="Photo "+(i+1)+" of "+images.length;
+    $("ocrnote").textContent=label+": starting...";
+    var res=await Tesseract.recognize(images[i],"eng",{logger:function(m){
+      if(m.status==="recognizing text")$("ocrnote").textContent=label+": "+Math.round(m.progress*100)+"%";
+    }});
+    out.push({name:images[i].name,text:res.data.text});
+  }
+  return out;
+}
+
+$("go").addEventListener("click",async function(){
+  hideErr();
+  $("go").disabled=true;
+  show("loading");
+  setStep(0);
+  $("ocrnote").textContent="Photos can take up to a minute each on a slow computer.";
+  try{
+    var images=files.filter(isImage), pdfs=files.filter(isPdf);
+    var ocr=images.length?await readPhotos(images):[];
+    setStep(1);
+    $("ocrnote").textContent="The server may need up to a minute to wake up on the free plan.";
+    var fd=new FormData();
+    fd.append("subject",$("subject").value.trim());
+    fd.append("ocr_texts",JSON.stringify(ocr));
+    pdfs.forEach(function(f){fd.append("files",f,f.name)});
+    var r=await fetch("/api/predict",{method:"POST",body:fd});
+    var data=await r.json().catch(function(){return{}});
+    if(!r.ok) throw new Error(typeof data.detail==="string"?data.detail:"Something went wrong. Please try again.");
+    setStep(2);
+    last=data;
+    showResults(data);
+  }catch(e){
+    show("upload");
+    showErr(e.message||"Something went wrong. Please try again.");
+  }finally{
+    $("go").disabled=files.length===0;
+  }
+});
+
+function showResults(d){
+  var subj=$("subject").value.trim();
+  $("rtitle").textContent="Top predicted questions"+(subj?" - "+subj:"");
+  $("s1").textContent=d.stats.papers;
+  $("s2").textContent=d.stats.questions;
+  $("s3").textContent=d.stats.topics;
+
+  var notes="";
+  if(d.warning) notes+='<div class="msg warnbox">'+esc(d.warning)+'</div>';
+  (d.skipped||[]).forEach(function(s){notes+='<div class="msg warnbox"><b>'+esc(s.name)+'</b> was skipped. '+esc(s.reason)+'</div>'});
+  if(!d.stats.ai) notes+='<div class="msg warnbox">AI wording clean-up was not used, so the questions are shown as found in the papers.</div>';
+  $("notes").innerHTML=notes;
+
+  $("qs").innerHTML=d.items.map(function(x){
+    var meta='<span>'+esc(x.topic)+'</span>';
+    if(x.marks) meta+='<span>'+x.marks+' marks</span>';
+    if(x.years.length) meta+='<span>Asked in '+x.years.join(", ")+'</span>';
+    if(x.times>1) meta+='<span>Seen '+x.times+' times</span>';
+    return '<div class="q"><div class="qh"><div class="rank">'+x.rank+'</div><div class="qt">'+esc(x.question)+'</div></div>'
+      +'<div class="meta">'+meta+'</div>'
+      +'<div class="bar"><div><i data-w="'+x.score+'"></i></div><b>'+x.score+'%</b></div></div>';
+  }).join("");
+
+  var max=Math.max.apply(null,d.topics.map(function(t){return t.share}).concat([1]));
+  $("topics").innerHTML=d.topics.map(function(t){
+    return '<div class="topic"><span>'+esc(t.name)+' &middot; '+t.share+'%</span><div><i data-w="'+Math.round(t.share/max*100)+'"></i></div></div>';
+  }).join("");
+
+  show("results");
+  requestAnimationFrame(function(){requestAnimationFrame(function(){
+    Array.prototype.forEach.call(document.querySelectorAll("[data-w]"),function(el){el.style.width=el.getAttribute("data-w")+"%"});
+  })});
+}
+
+$("copy").addEventListener("click",function(){
+  if(!last)return;
+  var txt=last.items.map(function(x){return x.rank+". "+x.question+(x.marks?" ("+x.marks+" marks)":"")+" - "+x.score+"% likely"}).join("\n");
+  try{navigator.clipboard.writeText(txt).then(function(){toast("Copied to clipboard")},function(){toast("Copy not available here")})}
+  catch(e){toast("Copy not available here")}
+});
+
+$("pdf").addEventListener("click",async function(){
+  if(!last)return;
+  try{
+    var r=await fetch("/api/pdf",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({subject:$("subject").value.trim(),items:last.items})});
+    if(!r.ok) throw new Error();
+    var blob=await r.blob();
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="cuboid-predicted-questions.pdf";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+  }catch(e){toast("Could not make the PDF. Please try again.")}
+});
+
+$("reset").addEventListener("click",function(){files=[];last=null;renderFiles();hideErr();show("upload")});
+</script>
+</body>
+</html>
