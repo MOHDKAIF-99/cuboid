@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 python-multipart
-pymupdf
+pdfplumber
 scikit-learn>=1.4
 numpy
 fpdf2
