@@ -323,7 +323,7 @@ def analyse(papers: List[dict]) -> Optional[dict]:
             {
                 "question": items[medoid]["text"],
                 "topic": topic,
-                "marks": max(marks) if marks else None,
+                "marks": items[medoid]["marks"] or (max(marks) if marks else None),  # the shown question's own marks
                 "years": [s[1] for s in sessions],
                 "year_values": [s[0] for s in sessions if s[0]],
                 "papers": {m["paper"] for m in members},
